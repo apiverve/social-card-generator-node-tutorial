@@ -118,7 +118,15 @@ const response = await fetch('https://api.apiverve.com/v1/htmltoimage', {
   "status": "ok",
   "error": null,
   "data": {
-    "downloadUrl": "https://storage.apiverve.com/images/abc123.png"
+    "imageName": "79c8416d-8096-4524-adea-a948eb69a21e.png",
+    "format": ".png",
+    "downloadURL": "https://storage.googleapis.com/apiverve/...",
+    "expires": 1766010253596,
+    "htmlLength": 197,
+    "dimensions": {
+      "width": 800,
+      "height": 600
+    }
   }
 }
 ```
