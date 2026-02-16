@@ -54,7 +54,7 @@ app.post('/api/generate', async (req, res) => {
     if (result.status === 'ok') {
       res.json({
         success: true,
-        imageUrl: result.data.downloadUrl || result.data.url,
+        imageUrl: result.data.downloadURL,
         width,
         height,
         format
