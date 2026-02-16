@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Social Card Generator | APIVerve Tutorial</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: white;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: rgba(255,255,255,0.8);
+      margin-bottom: 30px;
+    }
+
+    .editor-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .editor-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+
+    .panel h2 {
+      color: #333;
+      margin-bottom: 16px;
+      font-size: 1.1rem;
+    }
+
+    .input-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 14px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .color-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .color-input {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .color-input input[type="color"] {
+      width: 40px;
+      height: 36px;
+      padding: 2px;
+      cursor: pointer;
+    }
+
+    .color-input input[type="text"] {
+      flex: 1;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: 600;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin-top: 8px;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .preview-frame {
+      background: #f5f5f5;
+      border-radius: 8px;
+      padding: 16px;
+      min-height: 350px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .preview-card {
+      width: 100%;
+      max-width: 600px;
+      aspect-ratio: 1200/630;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+
+    .result {
+      margin-top: 20px;
+      text-align: center;
+      display: none;
+    }
+
+    .result.show {
+      display: block;
+    }
+
+    .result img {
+      max-width: 100%;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+
+    .download-btn {
+      display: inline-block;
+      margin-top: 12px;
+      background: #27ae60;
+      width: auto;
+      padding: 10px 24px;
+    }
+
+    .error {
+      margin-top: 16px;
+      padding: 12px;
+      background: #fff5f5;
+      border: 1px solid #feb2b2;
+      border-radius: 8px;
+      color: #c53030;
+      text-align: center;
+    }
+
+    .templates {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .template-btn {
+      width: auto;
+      padding: 8px 16px;
+      font-size: 13px;
+      background: #f0f0f0;
+      color: #333;
+      margin-top: 0;
+    }
+
+    .template-btn:hover {
+      background: #e0e0e0;
+      transform: none;
+      box-shadow: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Social Card Generator</h1>
+    <p class="subtitle">Create Open Graph images for social media sharing</p>
+
+    <div class="editor-layout">
+      <div class="panel">
+        <h2>Card Content</h2>
+
+        <div class="templates">
+          <button class="template-btn" onclick="loadTemplate('blog')">Blog Post</button>
+          <button class="template-btn" onclick="loadTemplate('product')">Product</button>
+          <button class="template-btn" onclick="loadTemplate('event')">Event</button>
+        </div>
+
+        <div class="input-group">
+          <label for="title">Title</label>
+          <input type="text" id="title" placeholder="Enter title" value="How to Build Amazing APIs" oninput="updatePreview()">
+        </div>
+
+        <div class="input-group">
+          <label for="description">Description</label>
+          <input type="text" id="description" placeholder="Enter description" value="A complete guide to building and scaling your API platform" oninput="updatePreview()">
+        </div>
+
+        <div class="input-group">
+          <label for="author">Author / Brand</label>
+          <input type="text" id="author" placeholder="Enter author or brand" value="APIVerve" oninput="updatePreview()">
+        </div>
+
+        <div class="input-group color-row">
+          <div>
+            <label>Background Color</label>
+            <div class="color-input">
+              <input type="color" id="bgColor" value="#667eea" oninput="updatePreview()">
+              <input type="text" id="bgColorText" value="#667eea" oninput="syncColor('bgColor')">
+            </div>
+          </div>
+          <div>
+            <label>Text Color</label>
+            <div class="color-input">
+              <input type="color" id="textColor" value="#ffffff" oninput="updatePreview()">
+              <input type="text" id="textColorText" value="#ffffff" oninput="syncColor('textColor')">
+            </div>
+          </div>
+        </div>
+
+        <button id="generate-btn" onclick="generate()">Generate Image</button>
+
+        <div id="error" class="error" style="display: none;"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Preview</h2>
+        <div class="preview-frame">
+          <div id="preview" class="preview-card"></div>
+        </div>
+
+        <div id="result" class="result">
+          <h2>Generated Image</h2>
+          <img id="result-image" src="" alt="Generated social card">
+          <br>
+          <a id="download-link" href="" download="social-card.png">
+            <button class="download-btn" type="button">Download PNG</button>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function generateHTML() {
+      const title = document.getElementById('title').value || 'Title';
+      const description = document.getElementById('description').value || 'Description';
+      const author = document.getElementById('author').value || 'Author';
+      const bgColor = document.getElementById('bgColor').value;
+      const textColor = document.getElementById('textColor').value;
+
+      return `
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 1200px;
+      height: 630px;
+      background: linear-gradient(135deg, ${bgColor} 0%, ${adjustColor(bgColor, -30)} 100%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 80px;
+      color: ${textColor};
+    }
+    h1 {
+      font-size: 64px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      line-height: 1.2;
+    }
+    p {
+      font-size: 32px;
+      opacity: 0.9;
+      margin-bottom: 40px;
+      line-height: 1.4;
+    }
+    .author {
+      font-size: 24px;
+      opacity: 0.7;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      background: ${textColor};
+      border-radius: 50%;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+  <h1>${escapeHtml(title)}</h1>
+  <p>${escapeHtml(description)}</p>
+  <div class="author">
+    <span class="dot"></span>
+    ${escapeHtml(author)}
+  </div>
+</body>
+</html>`;
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function adjustColor(hex, amount) {
+      const num = parseInt(hex.slice(1), 16);
+      const r = Math.min(255, Math.max(0, (num >> 16) + amount));
+      const g = Math.min(255, Math.max(0, ((num >> 8) & 0x00FF) + amount));
+      const b = Math.min(255, Math.max(0, (num & 0x0000FF) + amount));
+      return '#' + (0x1000000 + r * 0x10000 + g * 0x100 + b).toString(16).slice(1);
+    }
+
+    function updatePreview() {
+      const preview = document.getElementById('preview');
+      const iframe = document.createElement('iframe');
+      iframe.style.width = '100%';
+      iframe.style.height = '100%';
+      iframe.style.border = 'none';
+      iframe.srcdoc = generateHTML();
+      preview.innerHTML = '';
+      preview.appendChild(iframe);
+
+      // Sync color inputs
+      document.getElementById('bgColorText').value = document.getElementById('bgColor').value;
+      document.getElementById('textColorText').value = document.getElementById('textColor').value;
+    }
+
+    function syncColor(id) {
+      const colorPicker = document.getElementById(id);
+      const textInput = document.getElementById(id + 'Text');
+      if (/^#[0-9A-Fa-f]{6}$/.test(textInput.value)) {
+        colorPicker.value = textInput.value;
+        updatePreview();
+      }
+    }
+
+    function loadTemplate(type) {
+      const templates = {
+        blog: {
+          title: 'How to Build Amazing APIs',
+          description: 'A complete guide to building and scaling your API platform',
+          author: 'APIVerve',
+          bgColor: '#667eea',
+          textColor: '#ffffff'
+        },
+        product: {
+          title: 'Introducing Our New Product',
+          description: 'The fastest way to build your next great idea',
+          author: 'Your Brand',
+          bgColor: '#1a1a2e',
+          textColor: '#00d4ff'
+        },
+        event: {
+          title: 'Join Us at DevCon 2024',
+          description: 'March 15-17 | San Francisco, CA',
+          author: 'Register Now',
+          bgColor: '#ff6b6b',
+          textColor: '#ffffff'
+        }
+      };
+
+      const t = templates[type];
+      document.getElementById('title').value = t.title;
+      document.getElementById('description').value = t.description;
+      document.getElementById('author').value = t.author;
+      document.getElementById('bgColor').value = t.bgColor;
+      document.getElementById('textColor').value = t.textColor;
+      updatePreview();
+    }
+
+    async function generate() {
+      const btn = document.getElementById('generate-btn');
+      const errorEl = document.getElementById('error');
+      const resultEl = document.getElementById('result');
+
+      btn.disabled = true;
+      btn.textContent = 'Generating...';
+      errorEl.style.display = 'none';
+      resultEl.classList.remove('show');
+
+      try {
+        const response = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            html: generateHTML(),
+            width: 1200,
+            height: 630,
+            format: 'png'
+          })
+        });
+
+        const result = await response.json();
+
+        if (result.error) {
+          errorEl.textContent = result.error;
+          errorEl.style.display = 'block';
+        } else {
+          document.getElementById('result-image').src = result.imageUrl;
+          document.getElementById('download-link').href = result.imageUrl;
+          resultEl.classList.add('show');
+        }
+      } catch (err) {
+        errorEl.textContent = 'Failed to connect to server.';
+        errorEl.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Generate Image';
+      }
+    }
+
+    // Initialize preview
+    updatePreview();
+  </script>
+</body>
+</html>
