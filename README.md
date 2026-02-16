@@ -165,6 +165,14 @@ Explore more APIs at [APIVerve](https://apiverve.com/marketplace?utm_source=gith
 - [Markdown to Image](https://apiverve.com/marketplace/markdowntoimage?utm_source=github&utm_medium=tutorial&utm_campaign=social-card-generator-node-tutorial) - Convert Markdown to image
 - [Website Screenshot](https://apiverve.com/marketplace/webscreenshots?utm_source=github&utm_medium=tutorial&utm_campaign=social-card-generator-node-tutorial) - Capture website screenshots
 
+## Free Plan Note
+
+This tutorial works with the free APIVerve plan. Some APIs may have:
+- **Locked fields**: Premium response fields return `null` on free plans
+- **Ignored parameters**: Some optional parameters require a paid plan
+
+The API response includes a `premium` object when limitations apply. [Upgrade anytime](https://dashboard.apiverve.com/plans) to unlock all features.
+
 ## License
 
 MIT - see [LICENSE](LICENSE)
