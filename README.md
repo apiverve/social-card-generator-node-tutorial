@@ -1,36 +1,31 @@
-# Social Card Generator | APIVerve API Tutorial
+# Social Card Generator | APIVerve Template
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Build](https://img.shields.io/badge/Build-Passing-brightgreen.svg)]()
-[![Node.js](https://img.shields.io/badge/Node.js-18+-339933)](https://nodejs.org)
-[![Express](https://img.shields.io/badge/Express-4-000000)](https://expressjs.com)
-[![APIVerve | HTML to Image](https://img.shields.io/badge/APIVerve-HTML_to_Image-purple)](https://apiverve.com/marketplace/htmltoimage?utm_source=github&utm_medium=tutorial&utm_campaign=social-card-generator-node-tutorial)
+[![Node.js](https://img.shields.io/badge/Node.js-20+-339933)](package.json)
+[![Express](https://img.shields.io/badge/Express-4-000000)](package.json)
+[![APIVerve | HTML to Image](https://img.shields.io/badge/APIVerve-HTML_to_Image-purple)](https://apiverve.com/marketplace/htmltoimage?utm_source=github&utm_medium=template&utm_campaign=social-card-generator-node-tutorial)
 
-A Node.js web app for generating social media cards (Open Graph images). Design cards with custom colors, text, and templates, then export as PNG.
+Make the preview image that shows when your link is shared. Enter a title, a description and your brand colors, preview it live, and download a 1200×630 PNG ready for Open Graph and X cards.
 
-![Screenshot](https://raw.githubusercontent.com/apiverve/social-card-generator-node-tutorial/main/screenshot.jpg)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fapiverve%2Fsocial-card-generator-node-tutorial&project-name=social-card-generator&repository-name=social-card-generator&env=APIVERVE_API_KEY&envDescription=Your%20APIVerve%20API%20key.%20Free%20to%20create%2C%20no%20card%20needed.&envLink=https%3A%2F%2Fdashboard.apiverve.com%2Fsignup%3Fapi%3Dhtmltoimage%26utm_source%3Dvercel%26utm_medium%3Dtemplate%26utm_campaign%3Dsocial-card-generator-node-tutorial)
 
----
-
-### Get Your Free API Key
-
-This tutorial requires an APIVerve API key. **[Sign up free](https://dashboard.apiverve.com?utm_source=github&utm_medium=tutorial&utm_campaign=social-card-generator-node-tutorial)** - no credit card required.
+![Social Card Generator previewing and rendering a blog post card](https://raw.githubusercontent.com/apiverve/social-card-generator-node-tutorial/main/screenshot.png)
 
 ---
 
-## Features
+### Get your free API key
 
-- Visual card editor with live preview
-- Custom title, description, and author
-- Color picker for background and text
-- Pre-built templates (Blog, Product, Event)
-- Standard OG image size (1200x630)
-- Download as PNG
-- Built with Express.js
+This template needs an APIVerve API key. **[Sign up free](https://dashboard.apiverve.com/signup?api=htmltoimage&utm_source=github&utm_medium=template&utm_campaign=social-card-generator-node-tutorial)**, no credit card required.
 
-## Quick Start
+---
 
-1. **Clone this repository**
+## Deploy in one click
+
+Click **Deploy with Vercel** above. Vercel copies this repo to your GitHub account, asks for your `APIVERVE_API_KEY`, and gives you a live URL about a minute later.
+
+## Run it locally
+
+1. **Clone the repository**
    ```bash
    git clone https://github.com/apiverve/social-card-generator-node-tutorial.git
    cd social-card-generator-node-tutorial
@@ -42,143 +37,72 @@ This tutorial requires an APIVerve API key. **[Sign up free](https://dashboard.a
    ```
 
 3. **Add your API key**
-
-   Set environment variable or edit `server.js`:
    ```bash
-   export API_KEY=your-api-key-here
+   cp .env.example .env
    ```
+   Then open `.env` and set `APIVERVE_API_KEY`.
 
 4. **Start the server**
    ```bash
-   npm start
+   npm run dev
    ```
 
-5. **Open in browser**
+5. **Open** `http://localhost:3000`
 
-   Visit http://localhost:3000 and create social cards!
+## How it works
 
-## Project Structure
+1. The page in `public/index.html` calls `POST /api/generate` on this server.
+2. `server.js` checks the input, then calls HTML to Image. Your API key stays on the server and never reaches the browser.
+3. The page shows the result.
+
+The server builds the card's HTML from the fields, escaping every value, and never accepts raw HTML from the browser. Otherwise anyone could render any page they liked on your key. The page draws the same card in a scaled-down preview so you can see changes as you type.
 
 ```
-social-card-generator-node-tutorial/
-├── server.js           # Express server & API endpoint
-├── public/
-│   └── index.html      # Frontend editor UI
-├── package.json        # Dependencies
-├── screenshot.jpg      # Preview image
-├── LICENSE             # MIT license
-├── .gitignore          # Git ignore rules
-└── README.md           # This file
+├── server.js            # Express: the /api route that calls APIVerve
+├── public/index.html    # The page (HTML, CSS and JavaScript)
+├── .env.example         # Copy to .env and add your key
+└── package.json
 ```
 
-## How It Works
-
-1. User designs card in visual editor
-2. Editor generates HTML with styles
-3. Frontend sends HTML to `/api/generate`
-4. Server calls HTML to Image API
-5. API renders HTML and returns image URL
-6. User downloads the generated PNG
-
-### The API Call
+### The API call
 
 ```javascript
-const response = await fetch('https://api.apiverve.com/v1/htmltoimage', {
+const res = await fetch('https://api.apiverve.com/v1/htmltoimage', {
   method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'x-api-key': API_KEY
-  },
-  body: JSON.stringify({
-    html: '<html>...</html>',
-    width: 1200,
-    height: 630,
-    format: 'png'
-  })
+  headers: { 'x-api-key': process.env.APIVERVE_API_KEY, 'Content-Type': 'application/json' },
+  body: JSON.stringify({ html: cardHtml(fields), width: 1200, height: 630, format: 'png' })
 });
+const { data } = await res.json();
+// data.downloadURL → the rendered PNG
 ```
 
-## API Reference
+The download link the API returns expires, so save the image if you need to keep it.
 
-**Endpoint:** `POST https://api.apiverve.com/v1/htmltoimage`
+## Before you share your URL
 
-**Request Body:**
+Once deployed, anyone who finds your URL can use it on your API key. Each visitor can make 10 requests a minute, which is fine for a demo. The limit is kept in memory, so it isn't shared between serverless instances. For production:
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `html` | string | Yes | HTML code to render |
-| `width` | number | No | Image width (default: 1280) |
-| `height` | number | No | Image height (default: 800) |
-| `format` | string | No | Output format: png, jpeg, webp |
+- Put the page behind your own sign-in, or
+- Move the limit to a shared store such as [Upstash Redis](https://upstash.com/), or
+- Call the route only from your own backend.
 
-**Example Response:**
+## Ideas to extend it
 
-```json
-{
-  "status": "ok",
-  "error": null,
-  "data": {
-    "imageName": "79c8416d-8096-4524-adea-a948eb69a21e.png",
-    "format": ".png",
-    "downloadURL": "https://storage.googleapis.com/apiverve/...",
-    "expires": 1766010253596,
-    "htmlLength": 197,
-    "dimensions": {
-      "width": 800,
-      "height": 600
-    }
-  }
-}
-```
+- Generate a card for every blog post when it's published
+- Add your logo and a background photo to `cardHtml()` in `server.js`
+- Serve the image from your own storage and point `og:image` at it
 
-## Social Card Sizes
+## API reference
 
-| Platform | Size |
-|----------|------|
-| Open Graph (Facebook, LinkedIn) | 1200 x 630 |
-| Twitter Card | 1200 x 600 |
-| Pinterest | 1000 x 1500 |
+- [HTML to Image](https://apiverve.com/marketplace/htmltoimage?utm_source=github&utm_medium=template&utm_campaign=social-card-generator-node-tutorial): `POST https://api.apiverve.com/v1/htmltoimage`
+- [Full documentation](https://docs.apiverve.com?utm_source=github&utm_medium=template&utm_campaign=social-card-generator-node-tutorial)
 
-## Use Cases
+## Tech stack
 
-- **Blog posts** - Generate OG images for articles
-- **Product launches** - Create announcement cards
-- **Events** - Design event share images
-- **Marketing** - Build campaign visuals
-- **Documentation** - Generate doc previews
-- **Email headers** - Create email banner images
-
-## Customization Ideas
-
-- Add image/logo upload
-- Save templates to database
-- Add more card layouts
-- Support custom fonts
-- Add icon library
-- Batch generation for multiple posts
-
-## Related APIs
-
-Explore more APIs at [APIVerve](https://apiverve.com/marketplace?utm_source=github&utm_medium=tutorial&utm_campaign=social-card-generator-node-tutorial):
-
-- [HTML to PDF](https://apiverve.com/marketplace/htmltopdf?utm_source=github&utm_medium=tutorial&utm_campaign=social-card-generator-node-tutorial) - Convert HTML to PDF
-- [Markdown to Image](https://apiverve.com/marketplace/markdowntoimage?utm_source=github&utm_medium=tutorial&utm_campaign=social-card-generator-node-tutorial) - Convert Markdown to image
-- [Website Screenshot](https://apiverve.com/marketplace/webscreenshots?utm_source=github&utm_medium=tutorial&utm_campaign=social-card-generator-node-tutorial) - Capture website screenshots
-
-## Free Plan Note
-
-This tutorial works with the free APIVerve plan. Some APIs may have:
-- **Locked fields**: Premium response fields return `null` on free plans
-- **Ignored parameters**: Some optional parameters require a paid plan
-
-The API response includes a `premium` object when limitations apply. [Upgrade anytime](https://dashboard.apiverve.com/plans) to unlock all features.
+- **Node.js 20+** and **Express 4**
+- Plain HTML, CSS and JavaScript, no build step
+- Deploys to Vercel as-is: `server.js` becomes one function and `public/` is served from the CDN
 
 ## License
 
-MIT - see [LICENSE](LICENSE)
-
-## Links
-
-- [Get API Key](https://dashboard.apiverve.com?utm_source=github&utm_medium=tutorial&utm_campaign=social-card-generator-node-tutorial) - Sign up free
-- [APIVerve Marketplace](https://apiverve.com/marketplace?utm_source=github&utm_medium=tutorial&utm_campaign=social-card-generator-node-tutorial) - Browse 300+ APIs
-- [HTML to Image API](https://apiverve.com/marketplace/htmltoimage?utm_source=github&utm_medium=tutorial&utm_campaign=social-card-generator-node-tutorial) - API details
+MIT. See [LICENSE](LICENSE).

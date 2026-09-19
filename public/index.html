@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Social Card Generator | APIVerve Tutorial</title>
+  <title>Social Card Generator</title>
   <style>
     * {
       box-sizing: border-box;
@@ -143,7 +143,14 @@
       justify-content: center;
     }
 
+    .preview-card iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
     .preview-card {
+      position: relative;
       width: 100%;
       max-width: 600px;
       aspect-ratio: 1200/630;
@@ -226,17 +233,17 @@
 
         <div class="input-group">
           <label for="title">Title</label>
-          <input type="text" id="title" placeholder="Enter title" value="How to Build Amazing APIs" oninput="updatePreview()">
+          <input type="text" id="title" maxlength="90" placeholder="Enter title" value="How to Build Amazing APIs" oninput="updatePreview()">
         </div>
 
         <div class="input-group">
           <label for="description">Description</label>
-          <input type="text" id="description" placeholder="Enter description" value="A complete guide to building and scaling your API platform" oninput="updatePreview()">
+          <input type="text" id="description" maxlength="160" placeholder="Enter description" value="A complete guide to building and scaling your API platform" oninput="updatePreview()">
         </div>
 
         <div class="input-group">
           <label for="author">Author / Brand</label>
-          <input type="text" id="author" placeholder="Enter author or brand" value="APIVerve" oninput="updatePreview()">
+          <input type="text" id="author" maxlength="60" placeholder="Enter author or brand" value="APIVerve" oninput="updatePreview()">
         </div>
 
         <div class="input-group color-row">
@@ -359,10 +366,13 @@
 
     function updatePreview() {
       const preview = document.getElementById('preview');
+      // The card is 1200×630; render it at full size and scale it down to fit the box.
       const iframe = document.createElement('iframe');
-      iframe.style.width = '100%';
-      iframe.style.height = '100%';
+      iframe.style.width = '1200px';
+      iframe.style.height = '630px';
       iframe.style.border = 'none';
+      iframe.style.transformOrigin = '0 0';
+      iframe.style.transform = `scale(${preview.clientWidth / 1200})`;
       iframe.srcdoc = generateHTML();
       preview.innerHTML = '';
       preview.appendChild(iframe);
@@ -429,11 +439,13 @@
         const response = await fetch('/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          // The server builds the same card from these fields; generateHTML() above is only the live preview.
           body: JSON.stringify({
-            html: generateHTML(),
-            width: 1200,
-            height: 630,
-            format: 'png'
+            title: document.getElementById('title').value,
+            description: document.getElementById('description').value,
+            author: document.getElementById('author').value,
+            bgColor: document.getElementById('bgColor').value,
+            textColor: document.getElementById('textColor').value
           })
         });
 
@@ -458,6 +470,7 @@
 
     // Initialize preview
     updatePreview();
+    window.addEventListener('resize', updatePreview);
   </script>
 </body>
 </html>
